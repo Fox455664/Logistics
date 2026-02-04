@@ -1,7 +1,8 @@
 import { Tabs } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
-import { Truck, Package, Settings, BarChart3 } from 'lucide-react-native';
-import { Platform } from 'react-native';
+// تأكد من استيراد الأيقونات من المكتبة الصحيحة
+import { Truck, Package, Settings, BarChart3, Users } from 'lucide-react-native';
+import { Platform, View } from 'react-native';
 
 export default function TabsLayout() {
   const { user } = useAuth();
@@ -12,47 +13,44 @@ export default function TabsLayout() {
         headerShown: true,
         headerStyle: {
           backgroundColor: '#FFFFFF',
-          elevation: 0, // Android shadow remove
-          shadowOpacity: 0, // iOS shadow remove
+          elevation: 0,
+          shadowOpacity: 0,
           borderBottomWidth: 1,
           borderBottomColor: '#E2E8F0',
         },
         headerTitleStyle: {
-          fontWeight: '700',
+          fontWeight: '800',
           color: '#0F172A',
-          fontSize: 18,
+          fontSize: 20,
+          fontFamily: Platform.OS === 'web' ? 'System' : undefined, // تحسين الخط
         },
         headerTitleAlign: 'center',
-        tabBarActiveTintColor: '#0F172A', // اللون النشط كحلي
-        tabBarInactiveTintColor: '#94A3B8', // اللون غير النشط رمادي
+        tabBarActiveTintColor: '#F59E0B', // اللون الذهبي عند التفعيل
+        tabBarInactiveTintColor: '#64748B',
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E2E8F0',
-          height: Platform.OS === 'ios' ? 88 : 68,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 12,
+          height: Platform.OS === 'ios' ? 90 : 70,
+          paddingBottom: Platform.OS === 'ios' ? 30 : 12,
           paddingTop: 12,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.05,
-          shadowRadius: 10,
         },
         tabBarLabelStyle: {
-          fontWeight: '600',
+          fontWeight: '700',
           fontSize: 12,
+          marginTop: 4,
         },
       }}
     >
-      {/* ... نفس محتوى الشاشات السابق بدون تغيير في المنطق ... */}
+      {/* شاشات صاحب البضاعة */}
       {user?.role === 'shipper' && (
         <>
           <Tabs.Screen
             name="shipments"
             options={{
               title: 'إدارة الشحنات',
-              tabBarLabel: 'الشحنات',
-              tabBarIcon: ({ color, size }) => <Package color={color} size={size} strokeWidth={2} />,
+              tabBarLabel: 'شحناتي',
+              tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
             }}
           />
           <Tabs.Screen
@@ -60,12 +58,13 @@ export default function TabsLayout() {
             options={{
               title: 'الأسطول المتاح',
               tabBarLabel: 'شاحنات',
-              tabBarIcon: ({ color, size }) => <Truck color={color} size={size} strokeWidth={2} />,
+              tabBarIcon: ({ color, size }) => <Truck color={color} size={size} />,
             }}
           />
         </>
       )}
 
+      {/* شاشات السائق */}
       {user?.role === 'driver' && (
         <>
           <Tabs.Screen
@@ -73,7 +72,7 @@ export default function TabsLayout() {
             options={{
               title: 'مركباتي',
               tabBarLabel: 'مركباتي',
-              tabBarIcon: ({ color, size }) => <Truck color={color} size={size} strokeWidth={2} />,
+              tabBarIcon: ({ color, size }) => <Truck color={color} size={size} />,
             }}
           />
           <Tabs.Screen
@@ -81,20 +80,21 @@ export default function TabsLayout() {
             options={{
               title: 'سوق الشحن',
               tabBarLabel: 'السوق',
-              tabBarIcon: ({ color, size }) => <Package color={color} size={size} strokeWidth={2} />,
+              tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
             }}
           />
         </>
       )}
 
+      {/* شاشات الأدمن */}
       {user?.role === 'admin' && (
         <>
           <Tabs.Screen
             name="admin-dashboard"
             options={{
-              title: 'نظرة عامة',
+              title: 'لوحة التحكم',
               tabBarLabel: 'الرئيسية',
-              tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} strokeWidth={2} />,
+              tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} />,
             }}
           />
           <Tabs.Screen
@@ -102,20 +102,24 @@ export default function TabsLayout() {
             options={{
               title: 'المستخدمين',
               tabBarLabel: 'الأعضاء',
-              tabBarIcon: ({ color, size }) => <Users color={color} size={size} strokeWidth={2} />,
+              tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
             }}
           />
         </>
       )}
 
+      {/* الملف الشخصي (للجميع) */}
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'حسابي',
+          title: 'الملف الشخصي',
           tabBarLabel: 'حسابي',
-          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} strokeWidth={2} />,
+          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
+
+      {/* إخفاء الصفحات التي لا يجب أن تظهر في التبويبات */}
+      <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
   );
-              }
+}
