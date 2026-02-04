@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
-// تأكد من استيراد الأيقونات من المكتبة الصحيحة
-import { Truck, Package, Settings, BarChart3, Users } from 'lucide-react-native';
+// هنستخدم FontAwesome و MaterialIcons لأنهم مضمونين وشكلهم شيك
+import { FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Platform, View } from 'react-native';
 
 export default function TabsLayout() {
@@ -22,27 +22,32 @@ export default function TabsLayout() {
           fontWeight: '800',
           color: '#0F172A',
           fontSize: 20,
-          fontFamily: Platform.OS === 'web' ? 'System' : undefined, // تحسين الخط
+          fontFamily: Platform.OS === 'web' ? 'System' : undefined,
         },
         headerTitleAlign: 'center',
         tabBarActiveTintColor: '#F59E0B', // اللون الذهبي عند التفعيل
-        tabBarInactiveTintColor: '#64748B',
+        tabBarInactiveTintColor: '#94A3B8', // لون رمادي لما يكون مش نشط
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E2E8F0',
-          height: Platform.OS === 'ios' ? 90 : 70,
-          paddingBottom: Platform.OS === 'ios' ? 30 : 12,
-          paddingTop: 12,
+          height: Platform.OS === 'ios' ? 95 : 70, // زودنا الارتفاع عشان الشكل يبقى مريح
+          paddingBottom: Platform.OS === 'ios' ? 30 : 10,
+          paddingTop: 10,
+          elevation: 8, // ضل خفيف
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
         },
         tabBarLabelStyle: {
           fontWeight: '700',
-          fontSize: 12,
-          marginTop: 4,
+          fontSize: 11, // صغرنا الخط سنة عشان يبقى أشيك
+          marginTop: 2,
         },
       }}
     >
-      {/* شاشات صاحب البضاعة */}
+      {/* -------------------- شاشات صاحب البضاعة (Shipper) -------------------- */}
       {user?.role === 'shipper' && (
         <>
           <Tabs.Screen
@@ -50,7 +55,10 @@ export default function TabsLayout() {
             options={{
               title: 'إدارة الشحنات',
               tabBarLabel: 'شحناتي',
-              tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
+              // أيقونة صندوق
+              tabBarIcon: ({ color, size }) => (
+                <FontAwesome5 name="box-open" size={20} color={color} />
+              ),
             }}
           />
           <Tabs.Screen
@@ -58,13 +66,16 @@ export default function TabsLayout() {
             options={{
               title: 'الأسطول المتاح',
               tabBarLabel: 'شاحنات',
-              tabBarIcon: ({ color, size }) => <Truck color={color} size={size} />,
+              // أيقونة شاحنة
+              tabBarIcon: ({ color, size }) => (
+                <FontAwesome5 name="truck" size={20} color={color} />
+              ),
             }}
           />
         </>
       )}
 
-      {/* شاشات السائق */}
+      {/* -------------------- شاشات السائق (Driver) -------------------- */}
       {user?.role === 'driver' && (
         <>
           <Tabs.Screen
@@ -72,7 +83,10 @@ export default function TabsLayout() {
             options={{
               title: 'مركباتي',
               tabBarLabel: 'مركباتي',
-              tabBarIcon: ({ color, size }) => <Truck color={color} size={size} />,
+              // أيقونة شاحنة نقل
+              tabBarIcon: ({ color, size }) => (
+                <FontAwesome5 name="truck-moving" size={20} color={color} />
+              ),
             }}
           />
           <Tabs.Screen
@@ -80,13 +94,16 @@ export default function TabsLayout() {
             options={{
               title: 'سوق الشحن',
               tabBarLabel: 'السوق',
-              tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
+              // أيقونة كرة أرضية للسوق
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="earth" size={24} color={color} />
+              ),
             }}
           />
         </>
       )}
 
-      {/* شاشات الأدمن */}
+      {/* -------------------- شاشات الأدمن (Admin) -------------------- */}
       {user?.role === 'admin' && (
         <>
           <Tabs.Screen
@@ -94,7 +111,10 @@ export default function TabsLayout() {
             options={{
               title: 'لوحة التحكم',
               tabBarLabel: 'الرئيسية',
-              tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} />,
+              // أيقونة رسم بياني
+              tabBarIcon: ({ color, size }) => (
+                <MaterialIcons name="dashboard" size={24} color={color} />
+              ),
             }}
           />
           <Tabs.Screen
@@ -102,23 +122,29 @@ export default function TabsLayout() {
             options={{
               title: 'المستخدمين',
               tabBarLabel: 'الأعضاء',
-              tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
+              // أيقونة مستخدمين
+              tabBarIcon: ({ color, size }) => (
+                <FontAwesome5 name="users" size={20} color={color} />
+              ),
             }}
           />
         </>
       )}
 
-      {/* الملف الشخصي (للجميع) */}
+      {/* -------------------- الملف الشخصي (مشترك) -------------------- */}
       <Tabs.Screen
         name="profile"
         options={{
           title: 'الملف الشخصي',
           tabBarLabel: 'حسابي',
-          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
+          // أيقونة شخص
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="user-alt" size={20} color={color} />
+          ),
         }}
       />
 
-      {/* إخفاء الصفحات التي لا يجب أن تظهر في التبويبات */}
+      {/* إخفاء الصفحات الفرعية من الشريط السفلي */}
       <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
   );
