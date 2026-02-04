@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
-import { LogOut } from 'lucide-react-native';
+import { LogOut, User, MapPin, Phone, Briefcase } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -16,95 +16,88 @@ export default function ProfileScreen() {
     }
   };
 
+  const InfoRow = ({ icon, label, value }: any) => (
+    <View style={styles.row}>
+      <View style={styles.iconBox}>{icon}</View>
+      <View style={styles.infoContent}>
+        <Text style={styles.label}>{label}</Text>
+        <Text style={styles.value}>{value || 'غير محدد'}</Text>
+      </View>
+    </View>
+  );
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>الملف الشخصي</Text>
-
-        <View style={styles.infoSection}>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>نوع الحساب:</Text>
-            <Text style={styles.value}>
-              {user?.role === 'shipper' ? 'صاحب حمولة' : user?.role === 'driver' ? 'صاحب شاحنة' : 'مسؤول'}
-            </Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>المدينة:</Text>
-            <Text style={styles.value}>{user?.city}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>رقم الهاتف:</Text>
-            <Text style={styles.value}>{user?.phoneNumber}</Text>
-          </View>
+      <View style={styles.header}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{user?.phoneNumber?.charAt(0) || 'U'}</Text>
         </View>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <LogOut color="#fff" size={20} />
-          <Text style={styles.logoutText}>تسجيل الخروج</Text>
-        </TouchableOpacity>
+        <Text style={styles.name}>مستخدم {user?.role === 'shipper' ? 'أعمال' : 'نقل'}</Text>
+        <Text style={styles.roleBadge}>
+          {user?.role === 'shipper' ? 'صاحب بضائع' : user?.role === 'driver' ? 'سائق شاحنة' : 'مسؤول'}
+        </Text>
       </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>بيانات الحساب</Text>
+        <View style={styles.card}>
+          <InfoRow 
+            icon={<Phone size={20} color="#64748B" />} 
+            label="رقم الهاتف" 
+            value={user?.phoneNumber} 
+          />
+          <View style={styles.divider} />
+          <InfoRow 
+            icon={<MapPin size={20} color="#64748B" />} 
+            label="المدينة" 
+            value={user?.city} 
+          />
+          <View style={styles.divider} />
+          <InfoRow 
+            icon={<Briefcase size={20} color="#64748B" />} 
+            label="نوع الحساب" 
+            value={user?.role?.toUpperCase()} 
+          />
+        </View>
+      </View>
+
+      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+        <LogOut color="#EF4444" size={20} />
+        <Text style={styles.logoutText}>تسجيل الخروج</Text>
+      </TouchableOpacity>
+      
+      <Text style={styles.version}> الإصدار 1.0.0 • Logistics Corp</Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#f8f9fa',
+  container: { flexGrow: 1, backgroundColor: '#F8FAFC', padding: 24 },
+  header: { alignItems: 'center', marginBottom: 32 },
+  avatar: {
+    width: 80, height: 80, borderRadius: 40, backgroundColor: '#0F172A',
+    justifyContent: 'center', alignItems: 'center', marginBottom: 12,
+    borderWidth: 4, borderColor: '#E2E8F0'
   },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+  avatarText: { color: '#F59E0B', fontSize: 32, fontWeight: 'bold' },
+  name: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
+  roleBadge: {
+    marginTop: 6, backgroundColor: '#FEF3C7', paddingHorizontal: 12, paddingVertical: 4,
+    borderRadius: 20, color: '#92400E', fontSize: 12, fontWeight: '700'
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    color: '#1a1a1a',
+  section: { marginBottom: 24 },
+  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#94A3B8', marginBottom: 8, textAlign: 'right' },
+  card: { backgroundColor: '#FFF', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E2E8F0' },
+  row: { flexDirection: 'row-reverse', alignItems: 'center', paddingVertical: 8 },
+  iconBox: { width: 32, alignItems: 'center' },
+  infoContent: { flex: 1, marginRight: 12 },
+  label: { fontSize: 11, color: '#94A3B8', textAlign: 'right' },
+  value: { fontSize: 15, fontWeight: '600', color: '#1E293B', textAlign: 'right' },
+  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 8 },
+  logoutBtn: {
+    flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8,
+    backgroundColor: '#FEF2F2', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#FECACA'
   },
-  infoSection: {
-    gap: 16,
-    marginBottom: 24,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  label: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  value: {
-    fontSize: 14,
-    color: '#1a1a1a',
-    fontWeight: '600',
-  },
-  logoutButton: {
-    backgroundColor: '#f44',
-    padding: 14,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  logoutText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  logoutText: { color: '#EF4444', fontWeight: '700', fontSize: 15 },
+  version: { textAlign: 'center', color: '#CBD5E1', fontSize: 12, marginTop: 32 }
 });
