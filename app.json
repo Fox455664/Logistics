@@ -1,20 +1,32 @@
 {
   "expo": {
-    "name": "bolt-expo-nativewind",
-    "slug": "bolt-expo-nativewind",
+    "name": "شحناتي",
+    "slug": "shuhnati-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "shuhnati",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shuhnati.app"
+    },
+    "android": {
+      "package": "com.shuhnati.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
     },
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "شحناتي | Logistics Corp",
+      "shortName": "شحناتي",
+      "lang": "ar",
+      "description": "أفضل منصة لإدارة الشحنات والنقل"
     },
     "plugins": ["expo-router", "expo-font", "expo-web-browser"],
     "experiments": {
