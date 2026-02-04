@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Users, Truck, Package, TrendingUp } from 'lucide-react-native';
+import { Users, Truck, Package, TrendingUp, AlertCircle } from 'lucide-react-native';
 
 interface DashboardStats {
   totalUsers: number;
@@ -25,7 +25,7 @@ export default function AdminDashboardScreen() {
 
   const fetchStats = async () => {
     setLoading(true);
-
+    // ... (نفس كود جلب البيانات السابق) ...
     const [usersRes, trucksRes, shipmentsRes] = await Promise.all([
       supabase.from('users').select('*', { count: 'exact', head: true }),
       supabase.from('trucks').select('*', { count: 'exact', head: true }),
@@ -47,59 +47,70 @@ export default function AdminDashboardScreen() {
     setLoading(false);
   };
 
+  const StatCard = ({ title, value, icon, color, bg }: any) => (
+    <View style={styles.statCard}>
+      <View style={styles.statHeader}>
+        <View style={[styles.iconContainer, { backgroundColor: bg }]}>
+          {icon}
+        </View>
+        {/* ممكن إضافة نسبة مئوية هنا مستقبلاً */}
+      </View>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statTitle}>{title}</Text>
+    </View>
+  );
+
   if (loading) {
     return (
       <View style={styles.centerLoader}>
-        <ActivityIndicator size="large" color="#0066cc" />
+        <ActivityIndicator size="large" color="#0F172A" />
       </View>
     );
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>لوحة التحكم</Text>
-        <Text style={styles.subtitle}>نظرة عامة على النظام</Text>
+      <View style={styles.welcomeBanner}>
+        <Text style={styles.welcomeTitle}>نظرة عامة على النظام</Text>
+        <Text style={styles.welcomeSubtitle}>متابعة الأداء والإحصائيات الحية</Text>
       </View>
 
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <View style={[styles.iconBox, { backgroundColor: '#e3f2fd' }]}>
-            <Users color="#0066cc" size={32} />
-          </View>
-          <Text style={styles.statValue}>{stats.totalUsers}</Text>
-          <Text style={styles.statLabel}>مستخدمين</Text>
-        </View>
-
-        <View style={styles.statCard}>
-          <View style={[styles.iconBox, { backgroundColor: '#f3e5f5' }]}>
-            <Truck color="#7c3aed" size={32} />
-          </View>
-          <Text style={styles.statValue}>{stats.totalTrucks}</Text>
-          <Text style={styles.statLabel}>شاحنات</Text>
-        </View>
-
-        <View style={styles.statCard}>
-          <View style={[styles.iconBox, { backgroundColor: '#fef3c7' }]}>
-            <Package color="#f59e0b" size={32} />
-          </View>
-          <Text style={styles.statValue}>{stats.totalShipments}</Text>
-          <Text style={styles.statLabel}>شحنات</Text>
-        </View>
-
-        <View style={styles.statCard}>
-          <View style={[styles.iconBox, { backgroundColor: '#dcfce7' }]}>
-            <TrendingUp color="#16a34a" size={32} />
-          </View>
-          <Text style={styles.statValue}>{stats.completedShipments}</Text>
-          <Text style={styles.statLabel}>مكتملة</Text>
-        </View>
+      <View style={styles.grid}>
+        <StatCard 
+          title="إجمالي المستخدمين" 
+          value={stats.totalUsers} 
+          icon={<Users size={24} color="#0F172A" />} 
+          bg="#E2E8F0"
+        />
+        <StatCard 
+          title="أسطول الشاحنات" 
+          value={stats.totalTrucks} 
+          icon={<Truck size={24} color="#0F172A" />} 
+          bg="#E2E8F0"
+        />
+        <StatCard 
+          title="طلبات الشحن" 
+          value={stats.totalShipments} 
+          icon={<Package size={24} color="#F59E0B" />} 
+          bg="#FEF3C7"
+        />
+        <StatCard 
+          title="شحنات مكتملة" 
+          value={stats.completedShipments} 
+          icon={<TrendingUp size={24} color="#16A34A" />} 
+          bg="#DCFCE7"
+        />
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>الأنشطة الأخيرة</Text>
-        <View style={styles.activityCard}>
-          <Text style={styles.activityText}>تحديث النظام قيد الانتظار</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>تنبيهات النظام</Text>
+      </View>
+
+      <View style={styles.alertCard}>
+        <AlertCircle color="#3B82F6" size={24} />
+        <View style={styles.alertContent}>
+          <Text style={styles.alertTitle}>تحديث الحالة</Text>
+          <Text style={styles.alertMessage}>جميع الأنظمة تعمل بكفاءة عالية. لا توجد بلاغات معلقة.</Text>
         </View>
       </View>
     </ScrollView>
@@ -109,82 +120,102 @@ export default function AdminDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f8f9fa',
-  },
-  header: {
-    marginBottom: 32,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+    padding: 20,
+    backgroundColor: '#F8FAFC',
   },
   centerLoader: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  statsGrid: {
+  welcomeBanner: {
+    marginBottom: 24,
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  welcomeSubtitle: {
+    fontSize: 14,
+    color: '#64748B',
+  },
+  grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 12,
-    marginBottom: 32,
   },
   statCard: {
-    flex: 1,
-    minWidth: '48%',
-    backgroundColor: '#fff',
+    width: '48%', // تقريباً نصف الشاشة
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 8,
+    // خفيف جداً
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  iconBox: {
-    width: 64,
-    height: 64,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+  statHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 12,
+  },
+  iconContainer: {
+    padding: 10,
+    borderRadius: 8,
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 4,
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
+  statTitle: {
+    fontSize: 13,
+    color: '#64748B',
     fontWeight: '600',
-    color: '#1a1a1a',
+  },
+  sectionHeader: {
+    marginTop: 24,
     marginBottom: 12,
   },
-  activityCard: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#0066cc',
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1E293B',
   },
-  activityText: {
-    color: '#666',
+  alertCard: {
+    flexDirection: 'row-reverse',
+    backgroundColor: '#EFF6FF',
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#3B82F6',
+    alignItems: 'center',
+    gap: 12,
+  },
+  alertContent: {
+    flex: 1,
+  },
+  alertTitle: {
     fontSize: 14,
+    fontWeight: '700',
+    color: '#1E3A8A',
+    marginBottom: 2,
+    textAlign: 'right',
+  },
+  alertMessage: {
+    fontSize: 13,
+    color: '#334155',
+    textAlign: 'right',
+    lineHeight: 20,
   },
 });
