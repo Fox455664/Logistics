@@ -21,6 +21,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setLoading(true);
+    
+    // جلب الجلسة الحالية عند بدء التطبيق
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user.id) {
@@ -30,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
+    // الاستماع للتغييرات في حالة المصادقة (تسجيل دخول/خروج)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -46,41 +49,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const fetchUserData = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
 
-    if (!error && data) {
-      setUser({
-        id: data.id,
-        role: data.role,
-        phoneNumber: data.phone_number,
-        city: data.city,
-        createdAt: data.created_at,
-      });
+      if (!error && data) {
+        setUser({
+          id: data.id,
+          role: data.role,
+          phoneNumber: data.phone_number,
+          city: data.city,
+          createdAt: data.created_at,
+        });
+      }
+    } catch (e) {
+      console.error('Error fetching user data:', e);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
+  // --- دالة التسجيل المعدلة ---
   const signUp = async (email: string, password: string, role: 'shipper' | 'driver', phone: string, city: string) => {
+    // نرسل البيانات داخل options.data
+    // الـ Trigger في قاعدة البيانات سيقرأ هذه البيانات وينشئ الصف في جدول users
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          role: role,
+          phone_number: phone, // تأكد أن الاسم يطابق ما كتبته في الـ Trigger
+          city: city,
+          full_name: 'مستخدم جديد' // قيمة افتراضية للاسم، يمكنك تمريرها كبارامتر إذا أردت
+        }
+      }
     });
 
     if (authError) throw authError;
     if (!authData.user) throw new Error('User creation failed');
-
-    const { error: userError } = await supabase.from('users').insert({
-      id: authData.user.id,
-      role,
-      phone_number: phone,
-      city,
-    });
-
-    if (userError) throw userError;
+    
+    // ملاحظة: تم حذف كود supabase.from('users').insert(...) لتجنب خطأ RLS
   };
 
   const signIn = async (email: string, password: string) => {
@@ -95,6 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    // تنظيف الحالة عند تسجيل الخروج
+    setUser(null);
+    setSession(null);
   };
 
   return (
